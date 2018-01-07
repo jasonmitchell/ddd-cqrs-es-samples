@@ -1,0 +1,7 @@
+version: "3"
+
+services:
+  postgres:
+    build: ./Database
+    ports:
+      - 4001:5432
