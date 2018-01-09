@@ -2,7 +2,7 @@ using System;
 
 namespace Sample.Data.Model
 {
-    public class Reservation
+    public class ReservationMemento
     {
         public int Id { get; set; }
         public int TicketId { get; set; }

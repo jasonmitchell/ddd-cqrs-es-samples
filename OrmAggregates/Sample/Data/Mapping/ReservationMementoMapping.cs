@@ -4,11 +4,11 @@ using Sample.Data.Model;
 
 namespace Sample.Data.Mapping
 {
-    public class ReservationMapping : IEntityTypeConfiguration<Reservation>
+    public class ReservationMementoMapping : IEntityTypeConfiguration<ReservationMemento>
     {
-        public void Configure(EntityTypeBuilder<Reservation> builder)
+        public void Configure(EntityTypeBuilder<ReservationMemento> builder)
         {
-            builder.ToTable("reservation");
+            builder.ToTable("reservation_memento");
 
             builder.Property(x => x.Id)
                 .HasColumnName("id")

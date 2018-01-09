@@ -1,5 +1,5 @@
 using System;
-using ReservationMemento = Sample.Data.Model.Reservation;
+using Sample.Data.Model;
 
 namespace Sample.Domain
 {
@@ -18,8 +18,8 @@ namespace Sample.Domain
             _requestedQuantity = memento.RequestedQuantity;
             _reservedQuantity = memento.ReservedQuantity;
 
-            var stage = (ReservationStage)Enum.Parse(typeof(ReservationStage), memento.Status);
-            _status = new ReservationStatus(stage, memento.LastUpdated);
+            var statusType = (ReservationStatus.StatusType)Enum.Parse(typeof(ReservationStatus.StatusType), memento.Status);
+            _status = new ReservationStatus(statusType, memento.LastUpdated);
         }
         
         private Reservation(int ticketId, int requestedQuantity)
@@ -42,34 +42,16 @@ namespace Sample.Domain
                 TicketId = _ticketId,
                 RequestedQuantity = _requestedQuantity,
                 ReservedQuantity = _reservedQuantity,
-                Status = _status.Stage.ToString(),
+                Status = _status.Type.ToString(),
                 LastUpdated = _status.AsOf
             };
         }
 
-        public void Process(AllocationPool allocationPool)
+        public void Confirm()
         {
             if (!_status.CanAdvance) return; // or throw an exception
-
-            _reservedQuantity = allocationPool.ReserveFromPool(_ticketId, _requestedQuantity);
-            if (_reservedQuantity <= 0)
-            {
-                _status = ReservationStatus.InsufficientAvailability();
-            }
-            else if (_reservedQuantity < _requestedQuantity)
-            {
-                _status = ReservationStatus.PartiallyConfirmed();
-            }
-            else
-            {
-                _status = ReservationStatus.Confirmed();
-            }
-        }
-
-        public void Expire()
-        {
-            if (!_status.CanAdvance) return; // or throw an exception
-            _status = ReservationStatus.Expired();
+            _status = ReservationStatus.Confirmed();
+            _reservedQuantity = _requestedQuantity;
         }
     }
 }

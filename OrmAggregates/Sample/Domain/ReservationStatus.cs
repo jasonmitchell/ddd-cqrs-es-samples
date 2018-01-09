@@ -4,21 +4,24 @@ namespace Sample.Domain
 {
     public struct ReservationStatus
     {
-        public ReservationStage Stage { get; }
+        public StatusType Type { get; }
         public DateTime AsOf { get; }
 
-        internal ReservationStatus(ReservationStage stage, DateTime asOf)
+        internal ReservationStatus(StatusType stage, DateTime asOf)
         {
-            Stage = stage;
+            Type = stage;
             AsOf = asOf;
         }
 
-        public static ReservationStatus Open() => new ReservationStatus(ReservationStage.Open, DateTime.UtcNow);
-        public static ReservationStatus Confirmed() => new ReservationStatus(ReservationStage.Confirmed, DateTime.UtcNow);
-        public static ReservationStatus PartiallyConfirmed() => new ReservationStatus(ReservationStage.PartiallyConfirmed, DateTime.UtcNow);
-        public static ReservationStatus InsufficientAvailability() => new ReservationStatus(ReservationStage.InsufficientAvailability, DateTime.UtcNow);
-        public static ReservationStatus Expired() => new ReservationStatus(ReservationStage.Expired, DateTime.UtcNow);
+        public static ReservationStatus Open() => new ReservationStatus(StatusType.Open, DateTime.UtcNow);
+        public static ReservationStatus Confirmed() => new ReservationStatus(StatusType.Confirmed, DateTime.UtcNow);
 
-        public bool CanAdvance => Stage == ReservationStage.Open;
+        public bool CanAdvance => Type == StatusType.Open;
+
+        public enum StatusType
+        {
+            Open,
+            Confirmed
+        }
     }
 }

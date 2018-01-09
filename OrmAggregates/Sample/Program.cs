@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Npgsql;
 using Sample.Data;
+using Sample.Data.Model;
 using Sample.Domain;
-using ReservationMemento = Sample.Data.Model.Reservation;
 
 namespace Sample
 {
@@ -13,31 +14,29 @@ namespace Sample
     {
         static void Main(string[] args)
         {
-            var allocationPool = new AllocationPool(new Dictionary<int, int>
-            {
-                [1] = 10,
-                [2] = 20,
-                [3] = 30
-            });
+            var random = new Random();
+            var ticketId = random.Next(1, 4);
+            var quantity = random.Next(1, 6);
             
-            var reservationId = RequestReservation();
+            var reservationId = RequestReservation(ticketId, quantity);
             QueryReservation(reservationId);
-            ProcessReservation(reservationId, allocationPool);
+            ConfirmReservation(reservationId);
             QueryReservation(reservationId);
+            QueryReport();
             
             Console.ReadLine();
         }
 
-        private static int RequestReservation()
+        private static int RequestReservation(int ticketId, int quantity)
         {
             Console.WriteLine($"--- {nameof(RequestReservation)} ---");
             
             using (var context = new SampleWriteContext())
             {
-                var reservation = Reservation.Request(2, 4);
+                var reservation = Reservation.Request(ticketId, quantity);
                 var memento = ((IWithMemento<ReservationMemento>) reservation).CreateMemento();
 
-                context.Reservations.Add(memento);
+                context.ReservationMementos.Add(memento);
                 context.SaveChanges();
                 
                 Console.WriteLine($"\tCreated memento: {JsonConvert.SerializeObject(memento)}");
@@ -46,36 +45,44 @@ namespace Sample
             }
         }
 
-        private static void ProcessReservation(int reservationId, AllocationPool allocationPool)
+        private static void ConfirmReservation(int reservationId)
         {
-            Console.WriteLine($"--- {nameof(ProcessReservation)} ---");
+            Console.WriteLine($"--- {nameof(ConfirmReservation)} ---");
 
             using (var context = new SampleWriteContext())
             {
-                var memento = context.Reservations.AsNoTracking().FirstOrDefault(x => x.Id == reservationId);
+                var memento = context.ReservationMementos.AsNoTracking().FirstOrDefault(x => x.Id == reservationId);
                 var reservation = new Reservation(memento);
                 
-                reservation.Process(allocationPool);
+                reservation.Confirm();
                 
                 var updatedMemento = ((IWithMemento<ReservationMemento>) reservation).CreateMemento();
                 Console.WriteLine($"\tUpdated memento: {JsonConvert.SerializeObject(updatedMemento)}");
 
-                context.Reservations.Attach(updatedMemento);
-                context.Reservations.Update(updatedMemento);
+                context.ReservationMementos.Update(updatedMemento);
                 context.SaveChanges();
             }
         }
 
-        private static ReservationMemento QueryReservation(int reservationId)
+        private static void QueryReservation(int reservationId)
         {
             Console.WriteLine($"--- {nameof(QueryReservation)}:{reservationId} ---");
             
-            using (var context = new SampleReadContext())
+            using (var connection = new NpgsqlConnection(@"Host=localhost;Port=4001;Database=orm_sample;Username=docker;Password=docker"))
             {
-                var reservation = context.Reservations.Find(reservationId);
-                Console.WriteLine($"\tQuery result: {JsonConvert.SerializeObject(reservation)}");
+                var reservation = connection.Query<dynamic>("SELECT * FROM reservation WHERE id=@reservationId", new { reservationId });
+                Console.WriteLine($"\tReservation: {JsonConvert.SerializeObject(reservation)}");
+            }
+        }
 
-                return reservation;
+        private static void QueryReport()
+        {
+            Console.WriteLine($"--- {nameof(QueryReport)} ---");
+            
+            using (var connection = new NpgsqlConnection(@"Host=localhost;Port=4001;Database=orm_sample;Username=docker;Password=docker"))
+            {
+                var confirmedReservations = connection.Query<dynamic>("SELECT * FROM confirmed_reservation");
+                Console.WriteLine($"\tReport: {JsonConvert.SerializeObject(confirmedReservations)}");
             }
         }
     }

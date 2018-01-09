@@ -6,7 +6,7 @@ namespace Sample.Data
 {
     public class SampleWriteContext : DbContext
     {
-        public DbSet<Reservation> Reservations { get; set; }
+        public DbSet<ReservationMemento> ReservationMementos { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -18,7 +18,7 @@ namespace Sample.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new ReservationMapping());
+            modelBuilder.ApplyConfiguration(new ReservationMementoMapping());
         }
     }
 }
