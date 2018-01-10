@@ -5,5 +5,6 @@
 - Event Store projections
 - Projections in .NET
 - Domain events without event sourcing
-- Functional command handlers
+- Functional-style command handlers
 - Process managers
+- Functional Domain Model
