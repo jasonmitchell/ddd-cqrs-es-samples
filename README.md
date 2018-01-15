@@ -4,7 +4,7 @@
 - Event sourced aggregates
 - Event Store projections
 - Projections in .NET
-- Domain events without event sourcing
+- [Domain events without event sourcing](/DomainEvents)
 - [Bootstrap command handlers](/CommandHandlers)
 - Process managers
 - Functional Domain Model

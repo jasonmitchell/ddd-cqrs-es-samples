@@ -1,0 +1,1 @@
+# Domain Events Without Event Sourcing
