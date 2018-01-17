@@ -1,7 +1,7 @@
 # DDD, CQRS and ES samples
 
 - [ORM](/OrmAggregates): shows use of memento in aggregates to save data with an ORM
-- Event sourced aggregates
+- [Event sourced aggregates](/EventSourcedAggregates)
 - Event Store projections
 - Projections in .NET
 - [Domain events without event sourcing](/DomainEvents)
