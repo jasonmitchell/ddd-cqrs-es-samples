@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  eventstore:
+   image: eventstore/eventstore
+   environment:
+     - EVENTSTORE_START_STANDARD_PROJECTIONS=true
+     - EVENTSTORE_RUN_PROJECTIONS=All
+   ports:
+     - 1112:1112
+     - 1113:1113
+     - 2112:2112
+     - 2113:2113
+  postgres:
+    build: ./Database
+    ports:
+      - 4002:5432
