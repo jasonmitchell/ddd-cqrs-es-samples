@@ -14,24 +14,31 @@ namespace Sample.Domain
 
         internal Reservation()
         {
-            _events = new EventRecorder()
-                .Given<ReservationRequested>(e =>
-                {
+            _events = new EventRecorder(this);
+        }
+
+        void IEventSource.Given(object @event)
+        {
+            switch (@event)
+            {
+                case ReservationRequested e:
                     _id = e.Id;
                     _ticketId = e.TicketId;
                     _quantity = e.Quantity;
-                })
-                .Given<ReservationConfirmed>(_ => _confirmed = true);
+                    break;
+
+                case ReservationConfirmed _:
+                    _confirmed = true;
+                    break;
+            }
         }
-        
-        void IEventSource.RestoreFromEvents(IEnumerable<object> events) => _events.Replay(events);
+
         object[] IEventSource.TakeEvents() => _events.Reset();
 
         public static Reservation Request(Guid ticketId, int quantity)
         {
             var reservation = new Reservation();
             reservation._events.Then(new ReservationRequested(Guid.NewGuid(), ticketId, quantity));
-            
             return reservation;
         }
         

@@ -34,8 +34,13 @@ namespace Sample
             Console.WriteLine("Reconstructing Reservation from events");
             
             var reservation = new Reservation();
-            ((IEventSource)reservation).RestoreFromEvents(events);
-            
+            var eventSourced = ((IEventSource) reservation);
+
+            foreach (var e in events)
+            {
+                eventSourced.Given(e);
+            }
+
             Console.WriteLine("Reservation rehydrated (attach debugger and inspect to see state...because I'm lazy)");
         }
     }

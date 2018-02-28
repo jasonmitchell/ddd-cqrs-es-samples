@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-
-namespace Sample
+﻿namespace Sample
 {
     public interface IEventSource
     {
-        void RestoreFromEvents(IEnumerable<object> events);
+        void Given(object @event);
         object[] TakeEvents();
     }
 }
